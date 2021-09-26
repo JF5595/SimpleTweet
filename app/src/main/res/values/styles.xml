@@ -18,4 +18,8 @@
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
 
+    <style name="editText" parent="AppTheme">
+        <item name="colorAccent">#474646</item>
+    </style>
+
 </resources>
