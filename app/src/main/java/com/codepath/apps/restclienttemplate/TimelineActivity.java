@@ -62,7 +62,7 @@ public class TimelineActivity extends AppCompatActivity {
 
          swipeContainer = findViewById(R.id.swipeContainer);
         // Configure the refreshing colors
-        swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright);
+         swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright);
          swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
              @Override
              public void onRefresh() {

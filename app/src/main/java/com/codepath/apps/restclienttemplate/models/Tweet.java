@@ -31,7 +31,6 @@ public class Tweet {
     @ColumnInfo
     public String createdAt;
 
-
     @ColumnInfo
     public long userId;
 
