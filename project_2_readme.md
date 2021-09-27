@@ -9,7 +9,7 @@ Time spent: **8** hours spent in total
 The following **required** functionality is completed:
 
 - [X] User can **compose and post a new tweet**
-  - [X] User can click a ìComposeî icon in the Action Bar on the top right
+  - [X] User can click a ‚ÄúCompose‚Äù icon in the Action Bar on the top right
   - [X] User can then enter a new tweet and post this to twitter
   - [X] User is taken back to home timeline with **new tweet visible** in timeline
   - [X] Newly created tweet should be manually inserted into the timeline and not rely on a full refresh
@@ -35,7 +35,7 @@ The following **additional** features are implemented:
 
 Here's a walkthrough of implemented user stories:
 
-<img src='http://i.imgur.com/link/to/your/gif/file.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+<img src='https://github.com/JF5595/SimpleTweet/blob/master/Walkthrough2.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
 
 GIF created with [LiceCap](http://www.cockos.com/licecap/).
 
