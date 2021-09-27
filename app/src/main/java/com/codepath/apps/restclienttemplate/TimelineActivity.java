@@ -50,12 +50,15 @@ public class TimelineActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_timeline);
+
+        client = TwitterApp.getRestClient(this);
+        tweetDao = ((TwitterApp) getApplicationContext()).getMyDatabase().tweetDao();
+
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowHomeEnabled(true);
         actionBar.setIcon(R.drawable.ic_launcher_twitter_round);
 
-        client = TwitterApp.getRestClient(this);
-        tweetDao = ((TwitterApp) getApplicationContext()).getMyDatabase().tweetDao();
+
 
 
 
@@ -96,8 +99,8 @@ public class TimelineActivity extends AppCompatActivity {
             @Override
             public void run() {
                 Log.i(TAG,"Showing data from Database");
-                List<TweetWithUser> tweetWithUser = tweetDao.recentItems();
-                List<Tweet> tweetsFromDB = TweetWithUser.getTweetList(tweetWithUser);
+                List<TweetWithUser> tweetWithUsers = tweetDao.recentItems();
+                List<Tweet> tweetsFromDB = TweetWithUser.getTweetList(tweetWithUsers);
                 adapter.clear();
                 adapter.addAll(tweetsFromDB);
             }
@@ -121,9 +124,6 @@ public class TimelineActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-
-
-
             }
             @Override
             public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
@@ -131,6 +131,41 @@ public class TimelineActivity extends AppCompatActivity {
             }
         }, tweets.get(tweets.size() - 1).id);
 
+    }
+
+    private void populateHomeTimeLine() {
+        client.getHomeTimeline(new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Headers headers, JSON json) {
+                Log.i(TAG, "onSuccess" + json.toString());
+                JSONArray jsonArray = json.jsonArray;
+                try {
+                    List<Tweet> tweetsFromNetwork = Tweet.fromJsonArray(jsonArray);
+                    adapter.clear();
+                    adapter.addAll(tweetsFromNetwork);
+                    //Now we call setRefreshing(false) to signal refresh has finished
+                    swipeContainer.setRefreshing(false);
+                    AsyncTask.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.i(TAG,"Saving Data into Database");
+                            //insert users first
+                            List<User> usersFromNetwork = User.fromJsonTweetArray(tweetsFromNetwork);
+                            tweetDao.insertModel(usersFromNetwork.toArray(new User[0]));
+                            //insert tweets next
+                            tweetDao.insertModel(tweetsFromNetwork.toArray(new Tweet[0]));
+                        }
+                    });
+                } catch (JSONException e) {
+                    Log.e(TAG,"Json exception", e);
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                Log.i(TAG, "onFailure" + response, throwable);
+            }
+        });
     }
 
     @Override
@@ -168,38 +203,4 @@ public class TimelineActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    private void populateHomeTimeLine() {
-        client.getHomeTimeline(new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Headers headers, JSON json) {
-                Log.i(TAG, "onSuccess" + json.toString());
-                JSONArray jsonArray = json.jsonArray;
-                try {
-                    List<Tweet> tweetsFromNetwork = Tweet.fromJsonArray(jsonArray);
-                    adapter.clear();
-                    adapter.addAll(tweetsFromNetwork);
-                    //Now we call setRefreshing(false) to signal refresh has finished
-                    swipeContainer.setRefreshing(false);
-                    AsyncTask.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            Log.i(TAG,"Saving Data into Database");
-                            //insert users first
-                            List<User> usersFromNetwork = User.fromJsonTweetArray(tweetsFromNetwork);
-                            tweetDao.insertModel(usersFromNetwork.toArray(new User[0]));
-                            //insert tweets next
-                            tweetDao.insertModel(tweetsFromNetwork.toArray(new Tweet[0]));
-                        }
-                    });
-                } catch (JSONException e) {
-                    Log.e(TAG,"Json exception", e);
-                }
-            }
-
-            @Override
-            public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
-                Log.i(TAG, "onFailure" + response, throwable);
-            }
-        });
-    }
 }
